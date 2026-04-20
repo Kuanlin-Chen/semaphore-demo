@@ -1,0 +1,21 @@
+- name: Simple Semaphore Demo
+  hosts: local
+  gather_facts: true
+
+  tasks:
+
+    - name: Create demo directory
+      file:
+        path: /tmp/semaphore-demo
+        state: directory
+
+    - name: Create demo file
+      copy:
+        dest: /tmp/semaphore-demo/hello.txt
+        content: |
+          Hello from Ansible!
+          Managed by Semaphore.
+
+    - name: Show message
+      debug:
+        msg: "Demo completed successfully!"
