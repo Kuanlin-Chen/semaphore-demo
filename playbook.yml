@@ -3,11 +3,18 @@
   gather_facts: true
 
   tasks:
-
     - name: Create demo directory
       file:
         path: /tmp/semaphore-demo
         state: directory
+      register: dir_result
+
+    - name: Report directory creation (human-readable)
+      debug:
+        msg: >
+          Directory /tmp/semaphore-demo
+          was {{ 'created' if dir_result.changed else 'already present' }}.
+          Result: changed={{ dir_result.changed }}
 
     - name: Create demo file
       copy:
@@ -15,7 +22,35 @@
         content: |
           Hello from Ansible!
           Managed by Semaphore.
+      register: file_result
 
-    - name: Show message
+    - name: Report file creation (human-readable)
       debug:
-        msg: "Demo completed successfully!"
+        msg: >
+          File {{ file_result.dest }} was {{ 'created' if file_result.changed else 'updated/unchanged' }}.
+          Result: changed={{ file_result.changed }}
+
+    - name: Collect simplified status facts
+      set_fact:
+        demo_status:
+          dir:
+            path: /tmp/semaphore-demo
+            changed: "{{ dir_result.changed | default(false) }}"
+          file:
+            path: "{{ file_result.dest | default('/tmp/semaphore-demo/hello.txt') }}"
+            changed: "{{ file_result.changed | default(false) }}"
+          message: "Demo completed successfully!"
+          timestamp: "{{ ansible_date_time.iso8601 }}"
+
+    - name: Write status JSON to disk
+      copy:
+        dest: /tmp/semaphore-demo/status.json
+        content: "{{ demo_status | to_nice_json }}"
+      register: status_write
+
+    - name: Show final summary
+      debug:
+        msg: >
+          {{ demo_status.message }}
+          Directory changed={{ demo_status.dir.changed }}, file changed={{ demo_status.file.changed }}
+          Status JSON written: {{ status_write.dest if status_write is defined else '/tmp/semaphore-demo/status.json' }}
