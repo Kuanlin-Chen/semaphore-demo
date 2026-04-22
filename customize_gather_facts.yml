@@ -1,0 +1,20 @@
+- name: Gather GPU info
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Get GPU information
+      command: system_profiler SPDisplaysDataType
+      register: gpu_info
+
+    - name: Show GPU info
+      debug:
+        msg: "{{ gpu_info.stdout }}"
+
+    - name: Read role file
+      command: cat /Users/corey/NODE-INFO
+      register: role_file
+
+    - name: Show role fact
+      debug:
+        msg: "{{ role_file.stdout }}"
