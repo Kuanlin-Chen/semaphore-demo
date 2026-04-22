@@ -3,6 +3,15 @@
   gather_facts: true
 
   tasks:
+    - name: Show Ansible runtime context
+      debug:
+        msg:
+          inventory: "{{ ansible_inventory_sources }}"
+          limit: "{{ ansible_limit | default('none') }}"
+          tags: "{{ ansible_run_tags }}"
+          skip_tags: "{{ ansible_skip_tags }}"
+      tags: context
+
     - name: Create demo directory
       file:
         path: /tmp/semaphore-demo
