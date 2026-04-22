@@ -73,26 +73,34 @@
           '/tmp/semaphore-demo/status.json' }}
       tags: msg
 
-    - name: Post request test
-      uri:
-        url: http://localhost:3000/api/project/1/tasks
-        method: POST
-        headers:
-          Content-Type: application/json
-          Authorization: "Bearer {{ api_token }}"
-        body: |
-          {
-            "template_id": 9
-          }
-        status_code:
-          - 200
-          - 201
-      register: post_result
-      tags: post
+    - block:
+      - name: Post request test
+        uri:
+          url: http://localhost:3000/api/project/1/tasks
+          method: POST
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ api_token }}"
+          body: |
+            {
+              "template_id": 9
+            }
+          status_code:
+            - 200
+            - 201
+        register: post_result
 
-    - name: Show POST request result
-      debug:
-        msg: >
-          POST request to create task from template 9 returned status {{
-          post_result.status }}. Response: {{ post_result.json }}
-      tags: post
+      - name: Show POST request result
+        debug:
+          msg: >
+            POST request to create task from template 9 returned status {{
+            post_result.status }}. Response: {{ post_result.json }}
+      
+      tags: block-test
+
+      rescue:
+      - name: Handle POST request failure
+        debug:
+          msg: >
+            Failed to create task from template 9. Error: {{
+            post_result.msg if post_result is defined else 'Unknown error' }}
