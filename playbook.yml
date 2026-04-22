@@ -8,13 +8,14 @@
         path: /tmp/semaphore-demo
         state: directory
       register: dir_result
+      tags: demo
 
     - name: Report directory creation (human-readable)
       debug:
         msg: >
-          Directory /tmp/semaphore-demo
-          was {{ 'created' if dir_result.changed else 'already present' }}.
-          Result: changed={{ dir_result.changed }}
+          Directory /tmp/semaphore-demo was {{ 'created' if dir_result.changed
+          else 'already present' }}. Result: changed={{ dir_result.changed }}
+      tags: msg
 
     - name: Create demo file
       copy:
@@ -23,12 +24,14 @@
           Hello from Ansible!
           Managed by Semaphore.
       register: file_result
+      tags: demo
 
     - name: Report file creation (human-readable)
       debug:
         msg: >
-          File {{ file_result.dest }} was {{ 'created' if file_result.changed else 'updated/unchanged' }}.
-          Result: changed={{ file_result.changed }}
+          File {{ file_result.dest }} was {{ 'created' if file_result.changed
+          else 'updated/unchanged' }}. Result: changed={{ file_result.changed }}
+      tags: msg
 
     - name: Collect simplified status facts
       set_fact:
@@ -41,16 +44,44 @@
             changed: "{{ file_result.changed | default(false) }}"
           message: "Demo completed successfully!"
           timestamp: "{{ ansible_date_time.iso8601 }}"
+      tags: demo
 
     - name: Write status JSON to disk
       copy:
         dest: /tmp/semaphore-demo/status.json
         content: "{{ demo_status | to_nice_json }}"
       register: status_write
+      tags: msg
 
     - name: Show final summary
       debug:
         msg: >
-          {{ demo_status.message }}
-          Directory changed={{ demo_status.dir.changed }}, file changed={{ demo_status.file.changed }}
-          Status JSON written: {{ status_write.dest if status_write is defined else '/tmp/semaphore-demo/status.json' }}
+          {{ demo_status.message }} Directory changed={{ demo_status.dir.changed
+          }}, file changed={{ demo_status.file.changed }} Status JSON written:
+          {{ status_write.dest if status_write is defined else
+          '/tmp/semaphore-demo/status.json' }}
+      tags: msg
+
+    - name: Post request test
+      uri:
+        url: http://localhost:3000/api/project/1/tasks
+        method: POST
+        headers:
+          Content-Type: application/json
+          Authorization: "Bearer wfsmov9_adzoximjqvljhkye7xcxruq0fjxsiq-0kya="
+        body: |
+          {
+            "template_id": 9
+          }
+        status_code:
+          - 200
+          - 201
+      register: post_result
+      tags: post
+
+    - name: Show POST request result
+      debug:
+        msg: >
+          POST request to create task from template 9 returned status {{
+          post_result.status }}. Response: {{ post_result.json }}
+      tags: post
