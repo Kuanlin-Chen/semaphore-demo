@@ -115,6 +115,12 @@
             Authorization: "Bearer {{ api_token }}"
           status_code: 200
         register: get_result
+
+      - name: Show GET request result
+        debug:
+          msg: >
+            GET request for task 16 returned status {{ get_result.status }}.
+            Response: {{ get_result.json }}
       
       tags: get-test
 
