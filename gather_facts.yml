@@ -1,0 +1,20 @@
+---
+- name: Gather selected network facts
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Gather minimal network facts
+      setup:
+        gather_subset:
+          - network
+          #- min
+        filter:
+          - ansible_en6
+
+    - name: Show selected facts
+      debug:
+        msg:
+          ansible_en6: "{{ ansible_en6 }}"
+          ansible_en6.ipv4: "{{ ansible_en6.ipv4 }}"
+          ansible_en6.ipv4[0].address: "{{ ansible_en6.ipv4[0].address }}"
