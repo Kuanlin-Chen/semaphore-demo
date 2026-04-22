@@ -8,7 +8,6 @@
       setup:
         gather_subset:
           - network
-          #- min
         filter:
           - ansible_en6
 
