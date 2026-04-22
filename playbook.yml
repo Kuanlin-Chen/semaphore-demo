@@ -1,6 +1,8 @@
 - name: Simple Semaphore Demo
   hosts: local
   gather_facts: true
+  vars_files:
+    - secrets.yml
 
   tasks:
     - name: Show Ansible runtime context
@@ -77,7 +79,7 @@
         method: POST
         headers:
           Content-Type: application/json
-          Authorization: "Bearer wfsmov9_adzoximjqvljhkye7xcxruq0fjxsiq-0kya="
+          Authorization: "Bearer {{ api_token }}"
         body: |
           {
             "template_id": 9
