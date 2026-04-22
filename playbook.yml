@@ -88,6 +88,8 @@
           status_code:
             - 200
             - 201
+        run_once: true
+        delegate_to: localhost
         register: post_result
 
       - name: Show POST request result
@@ -114,6 +116,8 @@
             Content-Type: application/json
             Authorization: "Bearer {{ api_token }}"
           status_code: 200
+        run_once: true
+        delegate_to: localhost
         register: get_result
 
       - name: Show GET request result
