@@ -104,3 +104,29 @@
           msg: >
             Failed to create task from template 9. Error: {{
             post_result.msg if post_result is defined else 'Unknown error' }}
+
+    - block:
+      - name: GET status test
+        uri:
+          url: http://localhost:3000/api/project/1/tasks/16
+          method: GET
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ api_token }}"
+          status_code: 200
+        register: get_result
+
+      - name: Show Get request result
+        debug:
+          msg: >
+            GET request for task 16 returned status {{ get_result.status }}.
+            Response: {{ get_result.json }}
+      
+      tags: get-test
+
+      rescue:
+      - name: Handle GET request failure
+        debug:
+          msg: >
+            Failed to retrieve task 16. Error: {{
+            get_result.msg if get_result is defined else 'Unknown error' }}
