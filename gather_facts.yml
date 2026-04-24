@@ -1,0 +1,23 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Gather key facts
+      setup:
+        gather_subset:
+          - '!all'
+          - hardware
+          - network
+        filter:
+          - ansible_hostname
+          - ansible_en0
+
+    - name: Print pure JSON
+      copy:
+        content: >-
+          {{
+            {
+              "hostname": ansible_hostname,
+              "ipv4.address": ansible_en0.ipv4[0].address
+            } | to_nice_json
+          }}
+        dest: /dev/stdout
