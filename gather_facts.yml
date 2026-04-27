@@ -12,12 +12,7 @@
           - ansible_en0
 
     - name: Print pure JSON
-      copy:
-        content: >-
-          {{
-            {
-              "hostname": ansible_hostname,
-              "ipv4.address": ansible_en0.ipv4[0].address
-            } | to_nice_json
-          }}
-        dest: /dev/stdout
+      debug:
+        msg:
+          hostname: "{{ ansible_hostname }}"
+          ipv4.address: "{{ ansible_en0.ipv4[0].address }}"
